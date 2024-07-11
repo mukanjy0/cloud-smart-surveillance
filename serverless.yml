@@ -1,0 +1,199 @@
+org: mukanjy0
+service: apiSmartSurveillance
+
+provider:
+  name: aws
+  runtime: python3.12
+  memorySize: 512
+  timeout: 7
+  iam:
+    role: arn:aws:iam::819959187501:role/LabRole
+
+functions:
+  setUp:
+    handler: setUp.lambda_handler
+    environment:
+      SECURITY_STAFF_TABLE:
+        Ref: SecurityStaff
+      VIDEO_SIMULATION_STORAGE:
+        Ref: SimulationVideos
+      VIDEO_CLOUD_STORAGE:
+        Ref: SmartSurveillanceVideos
+
+  simulateVideoStream: # create liveVideo topic post
+    handler: simulateVideoStream.lambda_handler
+    environment:
+      CLOUD_STORAGE:
+        Ref: SmartSurveillanceVideos
+
+  saveVideo:
+    handler: saveVideo.lambda_handler
+    environment:
+      SECURITY_STAFF_TABLE:
+        Ref: SecurityStaff
+      PEOPLE_TABLE:
+        Ref: People
+      RECORDED_PEOPLE_TABLE:
+        Ref: RecordedPeople
+      CLOUD_STORAGE:
+        Ref: SmartSurveillanceVideos
+
+  processFrame:
+    handler: processFrame.lambda_handler
+    environment:
+      SECURITY_STAFF_TABLE:
+        Ref: SecurityStaff
+      OFFENDERS_TABLE:
+        Ref: Offenders
+
+  alertOffenderFound:
+    handler: alertOffenderFound.lambda_handler
+
+  suspectSearch:
+    handler: suspectSearch.lambda_handler
+    environment:
+      ACCESS_TOKENS_TABLE:
+        Ref: AccessTokens
+      RECORDED_PEOPLE_TABLE:
+        Ref: RecordedPeople
+    events:
+      - http:
+          path: /person/search
+          method: post
+          cors: true
+          integration: lambda
+
+resources:
+  Resources:
+    # DynamoDB
+    AccessTokens:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AccessTokens
+        AttributeDefinitions:
+          - AttributeName: token
+            AttributeType: S
+        KeySchema:
+          - AttributeName: token
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    People:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: People
+        AttributeDefinitions:
+          - AttributeName: person_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: person_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    Offenders:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Offenders
+        AttributeDefinitions:
+          - AttributeName: person_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: person_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    SecurityStaff:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: SecurityStaff
+        AttributeDefinitions:
+          - AttributeName: tenant_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tenant_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    Cameras:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Cameras
+        AttributeDefinitions:
+          - AttributeName: tenant_id
+            AttributeType: S
+          - AttributeName: camera_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tenant_id
+            KeyType: HASH
+          - AttributeName: camera_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    RecordedPeople:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: RecordedPeople
+        AttributeDefinitions:
+          - AttributeName: tenant_id
+            AttributeType: S
+          - AttributeName: person_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tenant_id
+            KeyType: HASH
+          - AttributeName: person_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+  # S3
+  resources:
+    SimulationVideos:
+      Type: AWS::S3::Bucket
+
+    SmartSurveillanceVideos:
+      Type: AWS::S3::Bucket
+
+    SmartSurveillanceImages:
+      Type: AWS::S3::Bucket
+    # SNS
+    LiveVideoStream:
+      Type: AWS::SNS::Topic
+      Properties:
+        Subscription:
+          - Endpoint:
+              Ref: "LiveVideoStreamQueue"
+            Protocol: "sqs"
+        TopicName: "LiveVideoStream"
+
+    OffenderAlert:
+      Type: AWS::SNS::Topic
+      Properties:
+        Subscription:
+          - Endpoint:
+              Ref: "OffenderAlertQueue"
+            Protocol: "sqs"
+        TopicName: "OffenderAlert"
+    # SQS
+    LiveVideoStreamQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Ref: LiveVideoStreamDLQ
+        maxReceiveCount: 5
+        QueueName: "LiveVideoStreamQueue"
+
+    LiveVideoStreamDLQ:
+      Type: AWS::SQS::Queue
+
+    OffenderAlertQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Ref: OffenderAlertDLQ
+        maxReceiveCount: 5
+        QueueName: "OffenderAlertQueue"
+
+    OffenderAlertDLQ:
+      Type: AWS::SQS::Queue
