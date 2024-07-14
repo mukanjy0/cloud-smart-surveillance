@@ -183,7 +183,6 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
   # S3
-  resources:
     SimulationVideos:
       Type: AWS::S3::Bucket
 
