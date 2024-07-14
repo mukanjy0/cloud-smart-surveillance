@@ -18,13 +18,29 @@ functions:
       VIDEO_SIMULATION_STORAGE:
         Ref: SimulationVideos
       VIDEO_CLOUD_STORAGE:
-        Ref: SmartSurveillanceVideos
+        Ref: SmartSurveillance
+      OFFENDERS_TABLE:
+        Ref: Offenders
+      OFFENDERS_COLLECTION:
+        Ref: OffendersCollection
+      PEOPLE_COLLECTION:
+        Ref: PeopleCollection
 
   simulateVideoStream: # create liveVideo topic post
     handler: simulateVideoStream.lambda_handler
     environment:
-      CLOUD_STORAGE:
-        Ref: SmartSurveillanceVideos
+      VIDEO_SIMULATION_STORAGE:
+        Ref: SmartSurveillance
+      VIDEO_CLOUD_STORAGE:
+        Ref: SmartSurveillance
+      SECURITY_STAFF_TABLE:
+        Ref: SecurityStaff
+      RECORDED_PEOPLE_TABLE:
+        Ref: RecordedPeople
+      SNS_TOPIC_ARN:
+        Ref: LiveVideoStream
+      LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
+      LOCAL_IMAGES_PATH: "/home/ubuntu/images"
 
   saveVideo:
     handler: saveVideo.lambda_handler
@@ -33,21 +49,36 @@ functions:
         Ref: SecurityStaff
       PEOPLE_TABLE:
         Ref: People
-      RECORDED_PEOPLE_TABLE:
-        Ref: RecordedPeople
       CLOUD_STORAGE:
-        Ref: SmartSurveillanceVideos
+        Ref: SmartSurveillance
 
   processFrame:
     handler: processFrame.lambda_handler
     environment:
       SECURITY_STAFF_TABLE:
         Ref: SecurityStaff
-      OFFENDERS_TABLE:
-        Ref: Offenders
+      OFFENDERS_COLLECTION:
+        Ref: OffendersCollection
+      CLOUD_STORAGE:
+        Ref: SmartSurveillance
+    events:
+      - sqs:
+          arn:
+            Ref: LiveVideoStreamQueue
+          batchSize: 5
+          maximumBatchingWindow: 15
 
   alertOffenderFound:
     handler: alertOffenderFound.lambda_handler
+    environment:
+      SNS_TOPIC_ARN:
+        Ref: OffenderAlert
+    events:
+      - sqs:
+          arn:
+            Ref: OffenderAlertQueue
+          batchSize: 5
+          maximumBatchingWindow: 10
 
   suspectSearch:
     handler: suspectSearch.lambda_handler
@@ -150,7 +181,7 @@ resources:
     SimulationVideos:
       Type: AWS::S3::Bucket
 
-    SmartSurveillanceVideos:
+    SmartSurveillance:
       Type: AWS::S3::Bucket
 
     SmartSurveillanceImages:
@@ -197,3 +228,19 @@ resources:
 
     OffenderAlertDLQ:
       Type: AWS::SQS::Queue
+    # Rekognition Collection
+    PeopleCollection:
+      Type: AWS::Rekognition::Collection
+      Properties:
+        CollectionId: PeopleCollection
+    OffendersCollection:
+      Type: AWS::Rekognition::Collection
+      Properties:
+        CollectionId: OffendersCollection
+    # EventBridge
+    PermissionForEventBridgeToInvokeLambda:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName: !Ref simulateVideoStream
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
