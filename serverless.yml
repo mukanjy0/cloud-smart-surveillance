@@ -14,51 +14,51 @@ functions:
     handler: setUp.lambda_handler
     environment:
       SECURITY_STAFF_TABLE:
-        Ref: "SecurityStaff"
+        Ref: SecurityStaff
       VIDEO_SIMULATION_STORAGE:
-        Ref: "SimulationVideos"
+        Ref: SimulationVideos
       VIDEO_CLOUD_STORAGE:
-        Ref: "SmartSurveillance"
+        Ref: SmartSurveillance
       OFFENDERS_TABLE:
-        Ref: "Offenders"
+        Ref: Offenders
       OFFENDERS_COLLECTION:
         Ref: OffendersCollection
       PEOPLE_COLLECTION:
         Ref: PeopleCollection
 
-  simulateVideoStream: # create liveVideo topic post
+  simulateVideoStream:
     handler: simulateVideoStream.lambda_handler
     environment:
       VIDEO_SIMULATION_STORAGE:
-        Ref: "SimulationVideos"
+        Ref: SimulationVideos
       VIDEO_CLOUD_STORAGE:
-        Ref: "SmartSurveillance"
+        Ref: SmartSurveillance
       SECURITY_STAFF_TABLE:
-        Ref: "SecurityStaff"
+        Ref: SecurityStaff
       RECORDED_PEOPLE_TABLE:
-        Ref: "RecordedPeople"
-      LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
-      LOCAL_IMAGES_PATH: "/home/ubuntu/images"
+        Ref: RecordedPeople
       SNS_TOPIC_ARN:
         Ref: LiveVideoStream
+      LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
+      LOCAL_IMAGES_PATH: "/home/ubuntu/images"
 
   saveVideo:
     handler: saveVideo.lambda_handler
     environment:
       SECURITY_STAFF_TABLE:
-        Ref: "SecurityStaff"
+        Ref: SecurityStaff
       PEOPLE_TABLE:
-        Ref: "People"
+        Ref: People
       CLOUD_STORAGE:
-        Ref: "SmartSurveillance"
+        Ref: SmartSurveillance
 
   processFrame:
     handler: processFrame.lambda_handler
     environment:
       SECURITY_STAFF_TABLE:
-        Ref: "SecurityStaff"
+        Ref: SecurityStaff
       CLOUD_STORAGE:
-        Ref: "SmartSurveillance"
+        Ref: SmartSurveillance
       OFFENDERS_COLLECTION:
         Ref: OffendersCollection
     events:
@@ -87,8 +87,10 @@ functions:
   suspectSearch:
     handler: suspectSearch.lambda_handler
     environment:
-      ACCESS_TOKENS_TABLE: "AccessTokens"
-      RECORDED_PEOPLE_TABLE: "RecordedPeople"
+      ACCESS_TOKENS_TABLE:
+        Ref: AccessTokens
+      RECORDED_PEOPLE_TABLE:
+        Ref: RecordedPeople
     events:
       - http:
           path: /person/search
@@ -253,11 +255,16 @@ resources:
       Properties:
         CollectionId: OffendersCollection
 
-    # EventBridge
-    # PermissionForEventBridgeToInvokeLambda:
-    #   Type: AWS::Lambda::Permission
-    #   Properties:
-    #     FunctionName:
-    #       Ref: simulateVideoStream
-    #     Action: lambda:InvokeFunction
-    #     Principal: events.amazonaws.com
+    # EventBridge Scheduler
+    SimulateVideoStreamScheduler:
+      Type: AWS::Scheduler::Schedule
+      Properties:
+        Description: "Invoke simulate video stream every minute"
+        FlexibleTimeWindow:
+          MaximumWindowInMinutes: 20
+          Mode: "FLEXIBLE"
+        Name: "SimulateVideoStreamScheduler"
+        ScheduleExpression: "rate(1 minute)"
+        Target:
+          Arn: !GetAtt simulateVideoStream.Arn
+          RoleArn: arn:aws:iam::819959187501:role/LabRole
