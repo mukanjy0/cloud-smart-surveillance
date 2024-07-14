@@ -77,6 +77,8 @@ def simulate_stream(video_path, tenant_id, stream_metadata):
           }),
       )
 
+      stream_metadata[stream_metadata['tenant_id'] == tenant_id]['cur_frame'] += 1
+
     except Exception as e:
        print(e)
 
@@ -108,3 +110,4 @@ def lambda_handler(event, context):
       video_path = f'{local_videos_path}/{video_id}'
 
       simulate_stream(video_path, tenant_id, stream_metadata)
+    stream_metadata.to_csv('frame.csv', index=False)
