@@ -30,7 +30,7 @@ functions:
     handler: simulateVideoStream.lambda_handler
     environment:
       VIDEO_SIMULATION_STORAGE:
-        Ref: "SmartSurveillance"
+        Ref: "SimulationVideos"
       VIDEO_CLOUD_STORAGE:
         Ref: "SmartSurveillance"
       SECURITY_STAFF_TABLE:
@@ -40,9 +40,7 @@ functions:
       LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
       LOCAL_IMAGES_PATH: "/home/ubuntu/images"
       SNS_TOPIC_ARN:
-        Fn::GetAtt:
-          - LiveVideoStream
-          - Arn
+        Ref: LiveVideoStream
 
   saveVideo:
     handler: saveVideo.lambda_handler
@@ -66,7 +64,7 @@ functions:
     events:
       - sqs:
           arn:
-            Fn:GetAtt:
+            Fn::GetAtt:
               - LiveVideoStreamQueue
               - Arn
           batchSize: 5
@@ -76,13 +74,11 @@ functions:
     handler: alertOffenderFound.lambda_handler
     environment:
       SNS_TOPIC_ARN:
-        Fn:GetAtt:
-          - OffenderAlert
-          - Arn
+        Ref: OffenderAlert
     events:
       - sqs:
           arn:
-            Fn:GetAtt:
+            Fn::GetAtt:
               - OffenderAlertQueue
               - Arn
           batchSize: 5
@@ -182,7 +178,7 @@ resources:
           - AttributeName: person_id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-  # S3
+    # S3
     SimulationVideos:
       Type: AWS::S3::Bucket
 
@@ -198,7 +194,7 @@ resources:
         TopicName: "LiveVideoStream"
         Subscription:
           - Endpoint:
-              Fn:GetAtt:
+              Fn::GetAtt:
                 - LiveVideoStreamQueue
                 - Arn
             Protocol: "sqs"
@@ -209,7 +205,7 @@ resources:
         TopicName: "OffenderAlert"
         Subscription:
           - Endpoint:
-              Fn:GetAtt:
+              Fn::GetAtt:
                 - OffenderAlertQueue
                 - Arn
             Protocol: "sqs"
@@ -220,14 +216,15 @@ resources:
         QueueName: "LiveVideoStreamQueue"
         RedrivePolicy:
           deadLetterTargetArn:
-            Fn:GetAtt:
+            Fn::GetAtt:
               - LiveVideoStreamDLQ
               - Arn
-        maxReceiveCount: 5
+          maxReceiveCount: 5
 
     LiveVideoStreamDLQ:
       Type: AWS::SQS::Queue
-      QueueName: "LiveVideoStreamDLQ"
+      Properties:
+        QueueName: "LiveVideoStreamDLQ"
 
     OffenderAlertQueue:
       Type: AWS::SQS::Queue
@@ -235,14 +232,15 @@ resources:
         QueueName: "OffenderAlertQueue"
         RedrivePolicy:
           deadLetterTargetArn:
-            Fn:GetAtt:
+            Fn::GetAtt:
               - OffenderAlertDLQ
               - Arn
-        maxReceiveCount: 5
+          maxReceiveCount: 5
 
     OffenderAlertDLQ:
       Type: AWS::SQS::Queue
-      QueueName: "OffenderAlertDLQ"
+      Properties:
+        QueueName: "OffenderAlertDLQ"
 
     # Rekognition Collection
     PeopleCollection:
@@ -256,9 +254,10 @@ resources:
         CollectionId: OffendersCollection
 
     # EventBridge
-    PermissionForEventBridgeToInvokeLambda:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName: !Ref simulateVideoStream
-        Action: lambda:InvokeFunction
-        Principal: events.amazonaws.com
+    # PermissionForEventBridgeToInvokeLambda:
+    #   Type: AWS::Lambda::Permission
+    #   Properties:
+    #     FunctionName:
+    #       Ref: simulateVideoStream
+    #     Action: lambda:InvokeFunction
+    #     Principal: events.amazonaws.com
