@@ -147,6 +147,8 @@ def lambda_handler(event, context):
     Faker.seed(0)
 
     try:
+        initialize_people_collection()
+        initialize_offenders_collection()
         for tenant in tenants:
             for _ in range(5):
                 staff_data = generate_security_staff_data(tenant)
