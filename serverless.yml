@@ -13,14 +13,10 @@ functions:
   setUp:
     handler: setUp.lambda_handler
     environment:
-      SECURITY_STAFF_TABLE:
-        Ref: SecurityStaff
-      VIDEO_SIMULATION_STORAGE:
-        Ref: SimulationVideos
-      VIDEO_CLOUD_STORAGE:
-        Ref: SmartSurveillance
-      OFFENDERS_TABLE:
-        Ref: Offenders
+      SECURITY_STAFF_TABLE: "SecurityStaff"
+      VIDEO_SIMULATION_STORAGE: "SimulationVideos"
+      VIDEO_CLOUD_STORAGE: "SmartSurveillance"
+      OFFENDERS_TABLE: "Offenders"
       OFFENDERS_COLLECTION:
         Ref: OffendersCollection
       PEOPLE_COLLECTION:
@@ -29,38 +25,29 @@ functions:
   simulateVideoStream: # create liveVideo topic post
     handler: simulateVideoStream.lambda_handler
     environment:
-      VIDEO_SIMULATION_STORAGE:
-        Ref: SmartSurveillance
-      VIDEO_CLOUD_STORAGE:
-        Ref: SmartSurveillance
-      SECURITY_STAFF_TABLE:
-        Ref: SecurityStaff
-      RECORDED_PEOPLE_TABLE:
-        Ref: RecordedPeople
-      SNS_TOPIC_ARN:
-        Ref: LiveVideoStream
+      VIDEO_SIMULATION_STORAGE: "SmartSurveillance"
+      VIDEO_CLOUD_STORAGE: "SmartSurveillance"
+      SECURITY_STAFF_TABLE: "SecurityStaff"
+      RECORDED_PEOPLE_TABLE: "RecordedPeople"
       LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
       LOCAL_IMAGES_PATH: "/home/ubuntu/images"
+      SNS_TOPIC_ARN:
+        Ref: LiveVideoStream
 
   saveVideo:
     handler: saveVideo.lambda_handler
     environment:
-      SECURITY_STAFF_TABLE:
-        Ref: SecurityStaff
-      PEOPLE_TABLE:
-        Ref: People
-      CLOUD_STORAGE:
-        Ref: SmartSurveillance
+      SECURITY_STAFF_TABLE: "SecurityStaff"
+      PEOPLE_TABLE: "People"
+      CLOUD_STORAGE: "SmartSurveillance"
 
   processFrame:
     handler: processFrame.lambda_handler
     environment:
-      SECURITY_STAFF_TABLE:
-        Ref: SecurityStaff
+      SECURITY_STAFF_TABLE: "SecurityStaff"
+      CLOUD_STORAGE: "SmartSurveillance"
       OFFENDERS_COLLECTION:
         Ref: OffendersCollection
-      CLOUD_STORAGE:
-        Ref: SmartSurveillance
     events:
       - sqs:
           arn:
@@ -83,10 +70,8 @@ functions:
   suspectSearch:
     handler: suspectSearch.lambda_handler
     environment:
-      ACCESS_TOKENS_TABLE:
-        Ref: AccessTokens
-      RECORDED_PEOPLE_TABLE:
-        Ref: RecordedPeople
+      ACCESS_TOKENS_TABLE: "AccessTokens"
+      RECORDED_PEOPLE_TABLE: "RecordedPeople"
     events:
       - http:
           path: /person/search
