@@ -24,7 +24,7 @@ def initialize_collection(query_result, collection_id):
     for obj in query_result['Items']:
         image_url = obj['image_url']
         
-        image_id = str(image_url).split(f"{images_bucket_name}/")[-1]
+        image_id = image_url.split(f"{images_bucket_name}/")[-1]
 
         try:
             index_response = rekognition.index_faces(

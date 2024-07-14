@@ -13,10 +13,14 @@ functions:
   setUp:
     handler: setUp.lambda_handler
     environment:
-      SECURITY_STAFF_TABLE: "SecurityStaff"
-      VIDEO_SIMULATION_STORAGE: "SimulationVideos"
-      VIDEO_CLOUD_STORAGE: "SmartSurveillance"
-      OFFENDERS_TABLE: "Offenders"
+      SECURITY_STAFF_TABLE:
+        Ref: "SecurityStaff"
+      VIDEO_SIMULATION_STORAGE:
+        Ref: "SimulationVideos"
+      VIDEO_CLOUD_STORAGE:
+        Ref: "SmartSurveillance"
+      OFFENDERS_TABLE:
+        Ref: "Offenders"
       OFFENDERS_COLLECTION:
         Ref: OffendersCollection
       PEOPLE_COLLECTION:
@@ -25,33 +29,46 @@ functions:
   simulateVideoStream: # create liveVideo topic post
     handler: simulateVideoStream.lambda_handler
     environment:
-      VIDEO_SIMULATION_STORAGE: "SmartSurveillance"
-      VIDEO_CLOUD_STORAGE: "SmartSurveillance"
-      SECURITY_STAFF_TABLE: "SecurityStaff"
-      RECORDED_PEOPLE_TABLE: "RecordedPeople"
+      VIDEO_SIMULATION_STORAGE:
+        Ref: "SmartSurveillance"
+      VIDEO_CLOUD_STORAGE:
+        Ref: "SmartSurveillance"
+      SECURITY_STAFF_TABLE:
+        Ref: "SecurityStaff"
+      RECORDED_PEOPLE_TABLE:
+        Ref: "RecordedPeople"
       LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
       LOCAL_IMAGES_PATH: "/home/ubuntu/images"
       SNS_TOPIC_ARN:
-        Ref: LiveVideoStream
+        Fn::GetAtt:
+          - LiveVideoStream
+          - Arn
 
   saveVideo:
     handler: saveVideo.lambda_handler
     environment:
-      SECURITY_STAFF_TABLE: "SecurityStaff"
-      PEOPLE_TABLE: "People"
-      CLOUD_STORAGE: "SmartSurveillance"
+      SECURITY_STAFF_TABLE:
+        Ref: "SecurityStaff"
+      PEOPLE_TABLE:
+        Ref: "People"
+      CLOUD_STORAGE:
+        Ref: "SmartSurveillance"
 
   processFrame:
     handler: processFrame.lambda_handler
     environment:
-      SECURITY_STAFF_TABLE: "SecurityStaff"
-      CLOUD_STORAGE: "SmartSurveillance"
+      SECURITY_STAFF_TABLE:
+        Ref: "SecurityStaff"
+      CLOUD_STORAGE:
+        Ref: "SmartSurveillance"
       OFFENDERS_COLLECTION:
         Ref: OffendersCollection
     events:
       - sqs:
           arn:
-            Ref: LiveVideoStreamQueue
+            Fn:GetAtt:
+              - LiveVideoStreamQueue
+              - Arn
           batchSize: 5
           maximumBatchingWindow: 15
 
@@ -59,11 +76,15 @@ functions:
     handler: alertOffenderFound.lambda_handler
     environment:
       SNS_TOPIC_ARN:
-        Ref: OffenderAlert
+        Fn:GetAtt:
+          - OffenderAlert
+          - Arn
     events:
       - sqs:
           arn:
-            Ref: OffenderAlertQueue
+            Fn:GetAtt:
+              - OffenderAlertQueue
+              - Arn
           batchSize: 5
           maximumBatchingWindow: 10
 
@@ -175,53 +196,66 @@ resources:
     LiveVideoStream:
       Type: AWS::SNS::Topic
       Properties:
+        TopicName: "LiveVideoStream"
         Subscription:
           - Endpoint:
-              Ref: "LiveVideoStreamQueue"
+              Fn:GetAtt:
+                - LiveVideoStreamQueue
+                - Arn
             Protocol: "sqs"
-        TopicName: "LiveVideoStream"
 
     OffenderAlert:
       Type: AWS::SNS::Topic
       Properties:
+        TopicName: "OffenderAlert"
         Subscription:
           - Endpoint:
-              Ref: "OffenderAlertQueue"
+              Fn:GetAtt:
+                - OffenderAlertQueue
+                - Arn
             Protocol: "sqs"
-        TopicName: "OffenderAlert"
     # SQS
     LiveVideoStreamQueue:
       Type: AWS::SQS::Queue
       Properties:
+        QueueName: "LiveVideoStreamQueue"
         RedrivePolicy:
           deadLetterTargetArn:
-            Ref: LiveVideoStreamDLQ
+            Fn:GetAtt:
+              - LiveVideoStreamDLQ
+              - Arn
         maxReceiveCount: 5
-        QueueName: "LiveVideoStreamQueue"
 
     LiveVideoStreamDLQ:
       Type: AWS::SQS::Queue
+      QueueName: "LiveVideoStreamDLQ"
 
     OffenderAlertQueue:
       Type: AWS::SQS::Queue
       Properties:
+        QueueName: "OffenderAlertQueue"
         RedrivePolicy:
           deadLetterTargetArn:
-            Ref: OffenderAlertDLQ
+            Fn:GetAtt:
+              - OffenderAlertDLQ
+              - Arn
         maxReceiveCount: 5
-        QueueName: "OffenderAlertQueue"
 
     OffenderAlertDLQ:
       Type: AWS::SQS::Queue
+      QueueName: "OffenderAlertDLQ"
+
     # Rekognition Collection
     PeopleCollection:
       Type: AWS::Rekognition::Collection
       Properties:
         CollectionId: PeopleCollection
+
     OffendersCollection:
       Type: AWS::Rekognition::Collection
       Properties:
         CollectionId: OffendersCollection
+
     # EventBridge
     PermissionForEventBridgeToInvokeLambda:
       Type: AWS::Lambda::Permission
