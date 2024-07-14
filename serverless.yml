@@ -41,6 +41,8 @@ functions:
         Ref: LiveVideoStream
       LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
       LOCAL_IMAGES_PATH: "/home/ubuntu/images"
+    events:
+      - schedule: rate(1 minute)
 
   saveVideo:
     handler: saveVideo.lambda_handler
@@ -254,17 +256,3 @@ resources:
       Type: AWS::Rekognition::Collection
       Properties:
         CollectionId: OffendersCollection
-
-    # EventBridge Scheduler
-    SimulateVideoStreamScheduler:
-      Type: AWS::Scheduler::Schedule
-      Properties:
-        Description: "Invoke simulate video stream every minute"
-        FlexibleTimeWindow:
-          MaximumWindowInMinutes: 20
-          Mode: "FLEXIBLE"
-        Name: "SimulateVideoStreamScheduler"
-        ScheduleExpression: "rate(1 minute)"
-        Target:
-          Arn: !GetAtt simulateVideoStream.Arn
-          RoleArn: arn:aws:iam::819959187501:role/LabRole
