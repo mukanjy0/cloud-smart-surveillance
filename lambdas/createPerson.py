@@ -6,11 +6,14 @@ table_name = os.environ['PEOPLE_TABLE']
 table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
-  person = event['body']
+  people = event['body']
 
-  response = table.put_item(Item=person)
+  responses = []
+  for person in people:
+    response = table.put_item(Item=person)
+    responses.append(response)
 
   return {
       'statusCode': 200,
-      'response': response
+      'responses': responses
   }
