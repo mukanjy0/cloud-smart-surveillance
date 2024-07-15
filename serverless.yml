@@ -40,6 +40,27 @@ functions:
           cors: true
           integration: lambda
 
+  createSecurityStaff:
+    handler: createSecurityStaff.lambda_handler
+    environment:
+      SECURITY_STAFF_TABLE:
+        Ref: SecurityStaff
+    events:
+      - http:
+          path: /security/create
+          method: post
+          cors: true
+          integration: lambda
+
+  createDir:
+    handler: createDir.lambda_handler
+    events:
+      - http:
+          path: /bucket/mkdir
+          method: post
+          cors: true
+          integration: lambda
+
   setUp:
     handler: setUp.lambda_handler
     environment:
@@ -213,10 +234,7 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
     # S3
-    SimulationVideos:
-      Type: AWS::S3::Bucket
-
-    SmartSurveillance:
+    Media:
       Type: AWS::S3::Bucket
 
     SmartSurveillanceImages:

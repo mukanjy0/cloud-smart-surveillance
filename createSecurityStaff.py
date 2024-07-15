@@ -2,7 +2,7 @@ import os
 import boto3
 
 dynamodb = boto3.resource('dynamodb')
-table_name = os.environ['PEOPLE_TABLE']
+table_name = os.environ['SECURITY_STAFF_TABLE']
 table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
