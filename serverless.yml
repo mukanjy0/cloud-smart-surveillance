@@ -30,6 +30,9 @@ functions:
 
   createPerson:
     handler: createPerson.lambda_handler
+    environment:
+      PEOPLE_TABLE:
+        Ref: People
     events:
       - http:
           path: /person/create
