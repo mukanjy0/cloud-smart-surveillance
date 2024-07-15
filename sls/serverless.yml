@@ -75,6 +75,9 @@ functions:
 
   liveVideo:
     handler: liveVideo.lambda_handler
+    package:
+      include:
+        - ./modules/**
     environment:
       BUCKET_NAME:
         Ref: Media
