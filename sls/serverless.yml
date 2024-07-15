@@ -91,34 +91,8 @@ functions:
     events:
       - schedule: rate(1 minute)
 
-  setUp:
-    handler: setUp.lambda_handler
-    environment:
-      SECURITY_STAFF_TABLE:
-        Ref: SecurityStaff
-      VIDEO_SIMULATION_STORAGE:
-        Ref: SimulationVideos
-      VIDEO_CLOUD_STORAGE:
-        Ref: SmartSurveillance
-      OFFENDERS_TABLE:
-        Ref: Offenders
-      OFFENDERS_COLLECTION:
-        Ref: OffendersCollection
-      PEOPLE_COLLECTION:
-        Ref: PeopleCollection
-
-  saveVideo:
-    handler: saveVideo.lambda_handler
-    environment:
-      SECURITY_STAFF_TABLE:
-        Ref: SecurityStaff
-      PEOPLE_TABLE:
-        Ref: People
-      CLOUD_STORAGE:
-        Ref: SmartSurveillance
-
-  processFrame:
-    handler: processFrame.lambda_handler
+  liveSurveillance:
+    handler: liveSurveillance.lambda_handler
     environment:
       SECURITY_STAFF_TABLE:
         Ref: SecurityStaff
@@ -158,7 +132,7 @@ functions:
         Ref: RecordedPeople
     events:
       - http:
-          path: /person/search
+          path: /recorded/person/search
           method: post
           cors: true
           integration: lambda
@@ -190,18 +164,6 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
 
-    Offenders:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: Offenders
-        AttributeDefinitions:
-          - AttributeName: person_id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: person_id
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
-
     SecurityStaff:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -212,22 +174,6 @@ resources:
         KeySchema:
           - AttributeName: tenant_id
             KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
-
-    Cameras:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: Cameras
-        AttributeDefinitions:
-          - AttributeName: tenant_id
-            AttributeType: S
-          - AttributeName: camera_id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: tenant_id
-            KeyType: HASH
-          - AttributeName: camera_id
-            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
 
     RecordedPeople:
@@ -245,12 +191,14 @@ resources:
           - AttributeName: person_id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+
     # S3
     Media:
       Type: AWS::S3::Bucket
 
-    SmartSurveillanceImages:
+    FaceDataset:
       Type: AWS::S3::Bucket
+
     # SNS
     LiveVideoStream:
       Type: AWS::SNS::Topic
@@ -273,6 +221,7 @@ resources:
                 - OffenderAlertQueue
                 - Arn
             Protocol: "sqs"
+
     # SQS
     LiveVideoStreamQueue:
       Type: AWS::SQS::Queue
