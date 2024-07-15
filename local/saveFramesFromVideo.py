@@ -29,6 +29,6 @@ def save_frames(video_path, frames_path):
     
     return frame
 
-video_path = 'video.mp4'
-frames_path = 'frames'
+video_path = 'videos/utec.mp4'
+frames_path = 'frames/utec'
 save_frames(video_path, frames_path)
