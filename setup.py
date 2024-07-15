@@ -73,7 +73,7 @@ def generate_security_staff_data(tenant):
         'tenant_id': tenant,
         'first_name': faker.first_name(),
         'last_name': faker.last_name(),
-        'dni': '7' + ''.join([str(random.randint(0, 9)) for _ in range(7)]),
+        'dni': ''.join([str(random.randint(0, 9)) for _ in range(7)]),
         'phone': '9' + ''.join([str(random.randint(0, 9)) for _ in range(8)]),
         'email': faker.email(),
         'tenant': tenant,

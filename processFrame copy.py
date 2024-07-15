@@ -9,12 +9,12 @@ rekognition = boto3.client('rekognition')
 security_staff_table = os.environ["SECURITY_STAFF_TABLE"]
 offenders_table = os.environ["OFFENDERS_TABLE"]
 offenders_collection = os.environ["OFFENDERS_COLLECTION"]
-bucket_name = os.environ["CLOUD_STORAGE"]
 
 sns_topic_arn = os.environ['SNS_TOPIC_ARN']
 
 def lambda_handler(event, context):
-    body = json.loads(event['body'])
+    body = event['body']
+    bucket_name = body['bucket_name']
     image_key = body['image_key']
     
     try:

@@ -5,11 +5,38 @@ provider:
   name: aws
   runtime: python3.12
   memorySize: 512
-  timeout: 7
+  timeout: 30
   iam:
     role: arn:aws:iam::819959187501:role/LabRole
 
 functions:
+  indexFacesForRekognitionFromS3:
+    handler: indexFacesForRekognitionFromS3.lambda_handler
+    events:
+      - http:
+          path: /collection/index/s3
+          method: post
+          cors: true
+          integration: lambda
+
+  searchFacesFromImage:
+    handler: searchFacesFromImage.lambda_handler
+    events:
+      - http:
+          path: /face/search
+          method: post
+          cors: true
+          integration: lambda
+
+  createPerson:
+    handler: createPerson.lambda_handler
+    events:
+      - http:
+          path: /person/create
+          method: post
+          cors: true
+          integration: lambda
+
   setUp:
     handler: setUp.lambda_handler
     environment:
