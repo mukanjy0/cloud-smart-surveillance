@@ -193,17 +193,6 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: "OffenderAlert"
-        Subscription:
-          - Endpoint:
-              Fn::GetAtt:
-                - OffenderAlertQueue
-                - Arn
-            Protocol: "sqs"
-    # SNS
-    OffenderAlert:
-      Type: AWS::SNS::Topic
-      Properties:
-        TopicName: "OffenderAlert"
 
     OffenderAlertSubscriptionUTEC:
       Type: AWS::SNS::Subscription
