@@ -1,0 +1,112 @@
+[
+    {
+        "person_id": "f4b6c50e-f41d-4a3c-b2b8-43914d5d6f8a",
+        "name": "Carlos",
+        "lastname": "Perez",
+        "dni": "765432198",
+        "phone": "912345678",
+        "country": "Peru",
+        "city": "Lima",
+        "offender": false,
+        "image_url": "https://example.com/image1.jpg"
+    },
+    {
+        "person_id": "fbe6e1ae-84c1-4c5e-b25b-792b65d0f1eb",
+        "name": "María",
+        "lastname": "Gomez",
+        "dni": "732847562",
+        "phone": "992374561",
+        "country": "Peru",
+        "city": "Arequipa",
+        "offender": true,
+        "image_url": "https://example.com/image2.jpg"
+    },
+    {
+        "person_id": "dbe3ef93-b12e-4b9b-87eb-0f233a2132a4",
+        "name": "Luis",
+        "lastname": "Fernandez",
+        "dni": "724839156",
+        "phone": "987654321",
+        "country": "Peru",
+        "city": "Cusco",
+        "offender": false,
+        "image_url": "https://example.com/image3.jpg"
+    },
+    {
+        "person_id": "cd6d5c87-1949-420f-98ee-d7182549f541",
+        "name": "Ana",
+        "lastname": "Lopez",
+        "dni": "718394562",
+        "phone": "934872561",
+        "country": "Peru",
+        "city": "Trujillo",
+        "offender": true,
+        "image_url": "https://example.com/image4.jpg"
+    },
+    {
+        "person_id": "ad7f4a8d-6c1f-4e2b-9a3e-2f4537a836b5",
+        "name": "Jorge",
+        "lastname": "Diaz",
+        "dni": "714839056",
+        "phone": "975612348",
+        "country": "Peru",
+        "city": "Chiclayo",
+        "offender": false,
+        "image_url": "https://example.com/image5.jpg"
+    },
+    {
+        "person_id": "e8d6d5c7-2b74-4b6d-b5c4-4e9c95b7e8f5",
+        "name": "Lucia",
+        "lastname": "Torres",
+        "dni": "736182945",
+        "phone": "962731845",
+        "country": "Peru",
+        "city": "Lima",
+        "offender": true,
+        "image_url": "https://example.com/image6.jpg"
+    },
+    {
+        "person_id": "b2c4e6d8-8a6d-4a9b-a2e6-7b6f6e1d2b3a",
+        "name": "Pedro",
+        "lastname": "Martinez",
+        "dni": "745839216",
+        "phone": "917362894",
+        "country": "Peru",
+        "city": "Arequipa",
+        "offender": false,
+        "image_url": "https://example.com/image7.jpg"
+    },
+    {
+        "person_id": "f8c6d5a9-7b8a-4b6e-a2c4-5d6b6e1f4e5b",
+        "name": "Rosa",
+        "lastname": "Hernandez",
+        "dni": "732894156",
+        "phone": "928374651",
+        "country": "Peru",
+        "city": "Cusco",
+        "offender": true,
+        "image_url": "https://example.com/image8.jpg"
+    },
+    {
+        "person_id": "e1c8d5a9-4b6a-4a7b-a9e6-5d6c5e7f3d4a",
+        "name": "Miguel",
+        "lastname": "Castro",
+        "dni": "718394025",
+        "phone": "914872345",
+        "country": "Peru",
+        "city": "Trujillo",
+        "offender": false,
+        "image_url": "https://example.com/image9.jpg"
+    },
+    {
+        "person_id": "d2c6d5e8-7a8b-4b9e-a5c4-3e7b6e1f4c5d",
+        "name": "Sofia",
+        "lastname": "Romero",
+        "dni": "729381654",
+        "phone": "967123845",
+        "country": "Peru",
+        "city": "Chiclayo",
+        "offender": true,
+        "image_url": "https://example.com/image10.jpg"
+    }
+]
