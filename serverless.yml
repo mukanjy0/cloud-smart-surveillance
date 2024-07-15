@@ -52,6 +52,18 @@ functions:
           cors: true
           integration: lambda
 
+  listTenants:
+    handler: listTenants.lambda_handler
+    environment:
+      SECURITY_STAFF_TABLE:
+        Ref: SecurityStaff
+    events:
+      - http:
+          path: /list_tenants
+          method: post
+          cors: true
+          integration: lambda
+
   createDir:
     handler: createDir.lambda_handler
     events:
@@ -60,6 +72,24 @@ functions:
           method: post
           cors: true
           integration: lambda
+
+  liveVideo:
+    handler: liveVideo.lambda_handler
+    environment:
+      VIDEO_SIMULATION_STORAGE:
+        Ref: SimulationVideos
+      VIDEO_CLOUD_STORAGE:
+        Ref: SmartSurveillance
+      SECURITY_STAFF_TABLE:
+        Ref: SecurityStaff
+      RECORDED_PEOPLE_TABLE:
+        Ref: RecordedPeople
+      SNS_TOPIC_ARN:
+        Ref: LiveVideoStream
+      LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
+      LOCAL_IMAGES_PATH: "/home/ubuntu/images"
+    events:
+      - schedule: rate(1 minute)
 
   setUp:
     handler: setUp.lambda_handler
@@ -76,24 +106,6 @@ functions:
         Ref: OffendersCollection
       PEOPLE_COLLECTION:
         Ref: PeopleCollection
-
-  simulateVideoStream:
-    handler: simulateVideoStream.lambda_handler
-    environment:
-      VIDEO_SIMULATION_STORAGE:
-        Ref: SimulationVideos
-      VIDEO_CLOUD_STORAGE:
-        Ref: SmartSurveillance
-      SECURITY_STAFF_TABLE:
-        Ref: SecurityStaff
-      RECORDED_PEOPLE_TABLE:
-        Ref: RecordedPeople
-      SNS_TOPIC_ARN:
-        Ref: LiveVideoStream
-      LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
-      LOCAL_IMAGES_PATH: "/home/ubuntu/images"
-    events:
-      - schedule: rate(1 minute)
 
   saveVideo:
     handler: saveVideo.lambda_handler
