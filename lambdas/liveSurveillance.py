@@ -11,6 +11,8 @@ people_collection = os.environ["PEOPLE_COLLECTION"]
 sns_topic_arn = os.environ['SNS_TOPIC_ARN']
 
 def lambda_handler(event, context):
+    print(event)
+
     body = event['body']
     bucket_name = body['bucket_name']
     image_key = body['image_key']

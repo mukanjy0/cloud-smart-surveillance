@@ -86,12 +86,12 @@ functions:
   liveSurveillance:
     handler: liveSurveillance.lambda_handler
     environment:
-      SECURITY_STAFF_TABLE:
-        Ref: SecurityStaff
-      CLOUD_STORAGE:
-        Ref: SmartSurveillance
-      OFFENDERS_COLLECTION:
-        Ref: OffendersCollection
+      PEOPLE_TABLE:
+        Ref: People
+      PEOPLE_COLLECTION:
+        Ref: PeopleCollection
+      SNS_TOPIC_ARN:
+        Ref: OffenderAlert
     events:
       - sqs:
           arn:
@@ -100,20 +100,6 @@ functions:
               - Arn
           batchSize: 5
           maximumBatchingWindow: 15
-
-  alertOffenderFound:
-    handler: alertOffenderFound.lambda_handler
-    environment:
-      SNS_TOPIC_ARN:
-        Ref: OffenderAlert
-    events:
-      - sqs:
-          arn:
-            Fn::GetAtt:
-              - OffenderAlertQueue
-              - Arn
-          batchSize: 5
-          maximumBatchingWindow: 10
 
   suspectSearch:
     handler: suspectSearch.lambda_handler
@@ -284,8 +270,3 @@ resources:
       Type: AWS::Rekognition::Collection
       Properties:
         CollectionId: PeopleCollection
-
-    OffendersCollection:
-      Type: AWS::Rekognition::Collection
-      Properties:
-        CollectionId: OffendersCollection
