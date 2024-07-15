@@ -1,0 +1,42 @@
+    
+    
+    // face_0 ---> 765432198
+    {
+        "person_id": "f4b6c50e-f41d-4a3c-b2b8-43914d5d6f8a",
+        "name": "Carlos",
+        "lastname": "Perez",
+        "dni": "765432198",
+        "phone": "912345678",
+        "country": "Peru",
+        "city": "Lima",
+        "offender": false,
+        "image_url": "https://example.com/image1.jpg"
+    },
+
+    //  face_6 ---> 724839156
+
+    {
+        "person_id": "dbe3ef93-b12e-4b9b-87eb-0f233a2132a4",
+        "name": "Luis",
+        "lastname": "Fernandez",
+        "dni": "724839156",
+        "phone": "987654321",
+        "country": "Peru",
+        "city": "Cusco",
+        "offender": true,
+        "image_url": "https://example.com/image3.jpg"
+    },
+
+    // face_7 ---> 714839056
+
+        {
+        "person_id": "ad7f4a8d-6c1f-4e2b-9a3e-2f4537a836b5",
+        "name": "Jorge",
+        "lastname": "Diaz",
+        "dni": "714839056",
+        "phone": "975612348",
+        "country": "Peru",
+        "city": "Chiclayo",
+        "offender": false,
+        "image_url": "https://example.com/image5.jpg"
+    },
