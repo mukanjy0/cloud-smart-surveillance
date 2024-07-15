@@ -273,6 +273,39 @@ resources:
                 - OffenderAlertQueue
                 - Arn
             Protocol: "sqs"
+    # SNS
+    OffenderAlert:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: "OffenderAlert"
+
+    OffenderAlertSubscriptionUTEC:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn:
+          Ref: OffenderAlert
+        Protocol: "sqs"
+        Endpoint:
+          Fn::GetAtt:
+            - OffenderAlertQueue
+            - Arn
+        FilterPolicy:
+          tenant_id:
+            - "UTEC"
+
+    OffenderAlertSubscriptionRIMAC:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn:
+          Ref: OffenderAlert
+        Protocol: "sqs"
+        Endpoint:
+          Fn::GetAtt:
+            - OffenderAlertQueue
+            - Arn
+        FilterPolicy:
+          tenant_id:
+            - "RIMAC"
     # SQS
     LiveVideoStreamQueue:
       Type: AWS::SQS::Queue
