@@ -30,5 +30,5 @@ def save_frames(video_path, frames_path):
     return frame
 
 video_path = 'video.mp4'
-frames_path = 'images'
+frames_path = 'frames'
 save_frames(video_path, frames_path)
