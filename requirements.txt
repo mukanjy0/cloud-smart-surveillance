@@ -1,4 +1,4 @@
-faker==13.0.1
-opencv-python==4.5.3.56
-pandas==1.5.3
-numpy==1.22.0
+faker==13.1.0
+opencv-python==4.10.0.84
+pandas==2.2.2
+numpy==2.0.0
