@@ -28,6 +28,7 @@ def lambda_handler(event, context):
             QualityFilter='AUTO'
         )
 
+        # if any of the matches is an offender
         sns.publish(
             TopicArn=sns_topic_arn,
             Message=json.dumps({

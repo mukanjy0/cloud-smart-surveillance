@@ -76,18 +76,10 @@ functions:
   liveVideo:
     handler: liveVideo.lambda_handler
     environment:
-      VIDEO_SIMULATION_STORAGE:
-        Ref: SimulationVideos
-      VIDEO_CLOUD_STORAGE:
-        Ref: SmartSurveillance
-      SECURITY_STAFF_TABLE:
-        Ref: SecurityStaff
-      RECORDED_PEOPLE_TABLE:
-        Ref: RecordedPeople
+      BUCKET_NAME:
+        Ref: Media
       SNS_TOPIC_ARN:
         Ref: LiveVideoStream
-      LOCAL_VIDEOS_PATH: "/home/ubuntu/videos"
-      LOCAL_IMAGES_PATH: "/home/ubuntu/images"
     events:
       - schedule: rate(1 minute)
 

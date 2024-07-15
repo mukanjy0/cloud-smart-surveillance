@@ -14,5 +14,5 @@ def get_tenant_ids():
 
     return {
       'statusCode': 200,
-      'tenant_ids': query_result['Items']
+      'tenantIds': query_result['Items']
     }
