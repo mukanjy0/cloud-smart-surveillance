@@ -18,7 +18,7 @@
         "phone": "992374561",
         "country": "Peru",
         "city": "Arequipa",
-        "offender": true,
+        "offender": false,
         "image_url": "https://example.com/image2.jpg"
     },
     {
@@ -29,7 +29,7 @@
         "phone": "987654321",
         "country": "Peru",
         "city": "Cusco",
-        "offender": false,
+        "offender": true,
         "image_url": "https://example.com/image3.jpg"
     },
     {
