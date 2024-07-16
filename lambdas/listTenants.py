@@ -2,7 +2,7 @@ import os
 import boto3
 
 dynamodb = boto3.resource('dynamodb')
-security_staff_table_name = os.environ['SECURITY_STAFF_TABLE:']
+security_staff_table_name = os.environ['SECURITY_STAFF_TABLE']
 
 def get_tenant_ids():
     security_staff_table = dynamodb.Table(security_staff_table_name)
