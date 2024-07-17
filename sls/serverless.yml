@@ -59,8 +59,8 @@ functions:
         Ref: SecurityStaff
     events:
       - http:
-          path: /list_tenants
-          method: post
+          path: /tenant/all
+          method: get
           cors: true
           integration: lambda
 
