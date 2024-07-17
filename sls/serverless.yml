@@ -118,6 +118,9 @@ functions:
           cors: true
           integration: lambda
 
+  S3Cleanup:
+    handler: S3Cleanup.lambda_handler
+
 resources:
   Resources:
     # DynamoDB
@@ -266,3 +269,13 @@ resources:
       Type: AWS::Rekognition::Collection
       Properties:
         CollectionId: PeopleCollection
+
+    # S3 clean up on delete
+    S3CleanupCustomResource:
+      Type: Custom::S3Cleanup
+      Properties:
+        ServiceToken:
+          Fn::GetAtt: [S3Cleanup, Arn]
+        BucketNames:
+          - Ref: Media
+          - Ref: FaceDataset
