@@ -1,0 +1,2 @@
+mv ../lambdas/* .
+sls deploy
