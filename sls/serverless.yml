@@ -82,7 +82,7 @@ functions:
       BUCKET_NAME:
         Ref: Media
       LIST_TENANTS_FUNCTION:
-        REf: listTenants
+        Ref: listTenants
       SNS_TOPIC_ARN:
         Ref: LiveVideoStream
     events:
