@@ -4,7 +4,7 @@ import cfnresponse
 
 s3 = boto3.client('s3')
 
-def handler(event, context):
+def lambda_handler(event, context):
     response_status = cfnresponse.SUCCESS
     try:
         if event['RequestType'] == 'Delete':
