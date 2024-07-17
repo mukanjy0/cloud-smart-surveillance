@@ -91,6 +91,8 @@ functions:
   liveSurveillance:
     handler: liveSurveillance.lambda_handler
     environment:
+      RECORDED_PEOPLE_TABLE:
+        Ref: RecordedPeople
       PEOPLE_TABLE:
         Ref: People
       PEOPLE_COLLECTION:

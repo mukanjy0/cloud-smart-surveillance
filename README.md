@@ -7,4 +7,6 @@ Presentación: https://docs.google.com/presentation/d/1t2IjsrEd6CP-UnWeWpdPtO9o7
 3. S3 upload
 4. creates
 5. create collection
-inspect recordedPeople
+6. inspect recordedPeople
+7. email alert
+8. tests with image

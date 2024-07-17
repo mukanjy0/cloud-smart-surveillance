@@ -2,15 +2,20 @@ import os
 import json
 import uuid
 import boto3
+from decimal import Decimal
+from boto3.dynamodb.conditions import Key, Attr
 
 sns = boto3.client('sns')
 rekognition = boto3.client('rekognition')
 
 dynamodb = boto3.resource('dynamodb')
-recorded_table = dynamodb.Table('RecordedPeople')
-people_table = dynamodb.Table('People')
 
-people_table = os.environ["PEOPLE_TABLE"]
+recorded_table_name = os.environ["RECORDED_PEOPLE_TABLE"]
+recorded_table = dynamodb.Table('RecordedPeople')
+
+people_table_name = os.environ["PEOPLE_TABLE"]
+people_table = dynamodb.Table(people_table_name)
+
 people_collection = os.environ["PEOPLE_COLLECTION"]
 
 sns_topic_arn = os.environ['SNS_TOPIC_ARN']
@@ -28,6 +33,7 @@ def lambda_handler(event, context):
       
         try:
             message_data = json.loads(sns_message)
+            print(message_data)
             
             bucket_name = message_data['bucket_name']
             image_key = message_data['image_key']
@@ -57,13 +63,17 @@ def lambda_handler(event, context):
                     for match in search_response['FaceMatches']:
                         dni = match['Face']['ExternalImageId']
                         record_id = str(uuid.uuid1())
+                        (lat, lon) = location
+                        lat = Decimal(str(lat))
+                        lon = Decimal(str(lon))
 
                         record = {
                             'tenant_id': tenant_id,
                             'record_id': record_id,
                             'dni': dni,
                             'datetime': datetime,
-                            'location': location,
+                            'latitude': lat,
+                            'longitude': lon,
                             'image_key': image_key
                         }
 
