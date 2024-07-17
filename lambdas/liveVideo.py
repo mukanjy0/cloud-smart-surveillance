@@ -82,7 +82,8 @@ def simulate_stream(tenant_id, stream_metadata):
             'image_key': image_key,
             'tenant_id': tenant_id,
             'datetime': formatted_datetime,
-            'location': locations[idx]
+            'location': locations[idx],
+            'image_key': image_key
           }),
       )
 

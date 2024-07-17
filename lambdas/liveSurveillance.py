@@ -34,6 +34,7 @@ def lambda_handler(event, context):
             tenant_id = message_data['tenant_id']
             datetime = message_data['datetime']
             location = message_data['location']
+            image_key = message_data['image_key']
 
             try:
                 search_response = rekognition.search_faces_by_image(
@@ -63,6 +64,7 @@ def lambda_handler(event, context):
                             'dni': dni,
                             'datetime': datetime,
                             'location': location,
+                            'image_key': image_key
                         }
 
                         response = recorded_table.put_item(Item=record)
