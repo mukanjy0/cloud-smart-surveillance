@@ -212,33 +212,28 @@ resources:
       Properties:
         TopicName: "OffenderAlert"
 
-    OffenderAlertSubscriptionUTEC:
+    OffenderAlertEmailSubscriptionUTEC:
       Type: AWS::SNS::Subscription
       Properties:
         TopicArn:
           Ref: OffenderAlert
-        Protocol: "sqs"
-        Endpoint:
-          Fn::GetAtt:
-            - OffenderAlertQueue
-            - Arn
+        Protocol: "email"
+        Endpoint: "ian.gonzalez@utec.edu.pe"
         FilterPolicy:
-          tenant_id:
+          tenant_id":
             - "UTEC"
 
-    OffenderAlertSubscriptionRIMAC:
+    OffenderAlertEmailSubscriptionRIMAC:
       Type: AWS::SNS::Subscription
       Properties:
         TopicArn:
           Ref: OffenderAlert
-        Protocol: "sqs"
-        Endpoint:
-          Fn::GetAtt:
-            - OffenderAlertQueue
-            - Arn
+        Protocol: "email"
+        Endpoint: "bianca.aguinaga@utec.edu.pe"
         FilterPolicy:
-          tenant_id:
+          tenant_id":
             - "RIMAC"
+
     # SQS
     LiveVideoStreamQueue:
       Type: AWS::SQS::Queue

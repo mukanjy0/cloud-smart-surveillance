@@ -55,7 +55,7 @@ def lambda_handler(event, context):
                     face_matches.extend(search_response['FaceMatches'])
 
                     for match in search_response['FaceMatches']:
-                        dni = match['faceDetails']['Face']['ExternalImageId']
+                        dni = match['Face']['ExternalImageId']
                         record_id = str(uuid.uuid1())
 
                         record = {
