@@ -68,28 +68,29 @@ def update_frame_csv(data):
 
 def simulate_stream(tenant_id, stream_metadata):
     try:
-      cur_frame = stream_metadata['cur_frame']
-      image_key = f'{tenant_id}/{cur_frame}.jpg'
+      for i in range(10):
+        cur_frame = stream_metadata['cur_frame']
+        image_key = f'{tenant_id}/{cur_frame}.jpg'
 
-      formatted_datetime = datetime.now().strftime('%Y-%m-%d/%H-%M-%S')
+        formatted_datetime = datetime.now().strftime('%Y-%m-%d/%H-%M-%S')
 
-      idx = random.randint(0, 6)
+        idx = random.randint(0, 6)
 
-      response = sns.publish(
-          TopicArn=sns_topic_arn,
-          Message=json.dumps({
-            'bucket_name': bucket_name,
-            'image_key': image_key,
-            'tenant_id': tenant_id,
-            'datetime': formatted_datetime,
-            'location': locations[idx],
-            'image_key': image_key
-          }),
-      )
+        response = sns.publish(
+            TopicArn=sns_topic_arn,
+            Message=json.dumps({
+              'bucket_name': bucket_name,
+              'image_key': image_key,
+              'tenant_id': tenant_id,
+              'datetime': formatted_datetime,
+              'location': locations[idx],
+              'image_key': image_key
+            }),
+        )
 
-      print(f'SNS: {response}')
+        print(f'SNS: {response}')
 
-      stream_metadata['cur_frame'] = (stream_metadata['cur_frame'] + 1) % stream_metadata['n_frames']
+        stream_metadata['cur_frame'] = (stream_metadata['cur_frame'] + 1) % stream_metadata['n_frames']
 
     except:
       raise Exception
