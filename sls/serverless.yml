@@ -81,8 +81,7 @@ functions:
     environment:
       BUCKET_NAME:
         Ref: Media
-      LIST_TENANTS_FUNCTION:
-        Ref: listTenants
+      LIST_TENANTS_FUNCTION: ${self:provider.stage}-listTenants
       SNS_TOPIC_ARN:
         Ref: LiveVideoStream
     events:
