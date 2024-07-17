@@ -11,5 +11,5 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'path': bucket_name + key
+        'path': bucket_name + '/' + key
     }

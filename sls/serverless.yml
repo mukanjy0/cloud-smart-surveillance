@@ -11,7 +11,7 @@ provider:
 
 functions:
   indexFacesForRekognitionFromS3:
-    handler: indexFacesForRekognitionFromS3.lambda_handler
+    handler: indexFacesCollection.lambda_handler
     events:
       - http:
           path: /collection/index/s3
@@ -152,9 +152,13 @@ resources:
         AttributeDefinitions:
           - AttributeName: tenant_id
             AttributeType: S
+          - AttributeName: dni
+            AttributeType: S
         KeySchema:
           - AttributeName: tenant_id
             KeyType: HASH
+          - AttributeName: dni
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
 
     RecordedPeople:
