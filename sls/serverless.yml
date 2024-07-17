@@ -149,10 +149,10 @@ resources:
       Properties:
         TableName: People
         AttributeDefinitions:
-          - AttributeName: person_id
+          - AttributeName: dni
             AttributeType: S
         KeySchema:
-          - AttributeName: person_id
+          - AttributeName: dni
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
 
@@ -179,12 +179,12 @@ resources:
         AttributeDefinitions:
           - AttributeName: tenant_id
             AttributeType: S
-          - AttributeName: person_id
+          - AttributeName: record_id
             AttributeType: S
         KeySchema:
           - AttributeName: tenant_id
             KeyType: HASH
-          - AttributeName: person_id
+          - AttributeName: record_id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
 
@@ -256,6 +256,26 @@ resources:
       Properties:
         QueueName: "LiveVideoStreamDLQ"
 
+    LiveVideoStreamQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - Ref: LiveVideoStreamQueue
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal: "*"
+              Action: "SQS:SendMessage"
+              Resource:
+                - Fn::GetAtt:
+                    - LiveVideoStreamQueue
+                    - Arn
+              Condition:
+                ArnEquals:
+                  AWS:SourceArn:
+                    - Ref: LiveVideoStream
+
     OffenderAlertQueue:
       Type: AWS::SQS::Queue
       Properties:
@@ -271,6 +291,26 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: "OffenderAlertDLQ"
+
+    OffenderAlertQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - Ref: OffenderAlertQueue
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal: "*"
+              Action: "SQS:SendMessage"
+              Resource:
+                - Fn::GetAtt:
+                    - OffenderAlertQueue
+                    - Arn
+              Condition:
+                ArnEquals:
+                  AWS:SourceArn:
+                    - Ref: OffenderAlert
 
     # Rekognition Collection
     PeopleCollection:
