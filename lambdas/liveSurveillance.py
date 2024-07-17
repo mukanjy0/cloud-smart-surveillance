@@ -1,9 +1,14 @@
 import os
 import json
+import uuid
 import boto3
 
 sns = boto3.client('sns')
 rekognition = boto3.client('rekognition')
+
+dynamodb = boto3.resource('dynamodb')
+recorded_table = dynamodb.Table('RecordedPeople')
+people_table = dynamodb.Table('People')
 
 people_table = os.environ["PEOPLE_TABLE"]
 people_collection = os.environ["PEOPLE_COLLECTION"]
@@ -15,46 +20,87 @@ def lambda_handler(event, context):
 
     face_matches = []
     for record in event['Records']:
-      sqs_message_body = record['body']
-      sqs_message_json = json.loads(sqs_message_body)
-      sns_message = sqs_message_json['Message']
+        sqs_message_body = record['body']
+        sqs_message_json = json.loads(sqs_message_body)
+        sns_message = sqs_message_json['Message']
       
-      print(f"Received SNS message: {sns_message}")
+        print(f"Received SNS message: {sns_message}")
       
-      try:
-        message_data = json.loads(sns_message)
-        
-        bucket_name = message_data['bucket_name']
-        image_key = message_data['image_key']
-
         try:
-            search_response = rekognition.search_faces_by_image(
-                CollectionId=people_collection,
-                Image={
-                    'S3Object': {
-                        'Bucket': bucket_name,
-                        'Name': image_key
-                    }
-                },
-                FaceMatchThreshold=80,
-                QualityFilter='AUTO'
-            )
+            message_data = json.loads(sns_message)
+            
+            bucket_name = message_data['bucket_name']
+            image_key = message_data['image_key']
+            tenant_id = message_data['tenant_id']
+            datetime = message_data['datetime']
+            location = message_data['location']
 
-            print(search_response)
+            try:
+                search_response = rekognition.search_faces_by_image(
+                    CollectionId=people_collection,
+                    Image={
+                        'S3Object': {
+                            'Bucket': bucket_name,
+                            'Name': image_key
+                        }
+                    },
+                    FaceMatchThreshold=80,
+                    QualityFilter='AUTO'
+                )
 
-            face_matches.extend(search_response['FaceMatches'])
+                print(search_response)
 
-            # if any of the matches is an offender
-            sns.publish(
-                TopicArn=sns_topic_arn
-            )
+                if search_response['FaceMatches']:
+                    face_matches.extend(search_response['FaceMatches'])
 
-        except Exception as e:
-            print(json.dumps({'error': str(e)}))
+                    for match in search_response['FaceMatches']:
+                        dni = match['faceDetails']['Face']['ExternalImageId']
+                        record_id = str(uuid.uuid1())
 
-      except json.JSONDecodeError:
-          print("Received message is not in JSON format")
-      
+                        record = {
+                            'tenant_id': tenant_id,
+                            'record_id': record_id,
+                            'dni': dni,
+                            'datetime': datetime,
+                            'location': location,
+                        }
+
+                        response = recorded_table.put_item(Item=record)
+                        print(f'Insert on RecordedPeople: {response}')
+
+                        result = people_table.query(
+                            FilterExpression=Attr('offender').eq(True) & Attr('dni').eq(dni),
+                            KeyConditionExpression=Key('tenant_id').eq(tenant_id)
+                        )
+                        print(f'Validate if offender: {result}')
+
+                        if result['Items']:
+                            person = result['Items'][0]
+
+                            sns.publish(
+                                TopicArn=sns_topic_arn,
+                                Message=json.dumps({
+                                    'tenant_id': tenant_id,
+                                    'dni': dni,
+                                    'name': person['name'],
+                                    'lastname': person['lastname'],
+                                    'country': person['country'],
+                                    'datetime': datetime,
+                                    'location': location,
+                                }),
+                                MessageAttributes={
+                                    'tenant_id': {
+                                        'DataType': 'String',
+                                        'StringValue': tenant_id
+                                    },
+                                }
+                            )
+
+            except Exception as e:
+                print(json.dumps({'error': str(e)}))
+
+        except json.JSONDecodeError:
+            print("Received message is not in JSON format")
 
     return {
         'statusCode': 200,

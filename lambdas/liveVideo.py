@@ -2,6 +2,8 @@ import os
 import csv
 import boto3
 import json
+import random
+from datetime import datetime
 
 s3 = boto3.client('s3')
 sns = boto3.client('sns')
@@ -14,6 +16,17 @@ sns_topic_arn = os.environ['SNS_TOPIC_ARN']
 
 file_key = 'frame.csv'
 temp_file = f'/tmp/{file_key}'
+
+locations = [
+  (40.712776, -74.005974), # Nueva York
+  (51.507351, -0.127758), # Londres
+  (35.689487, 139.691711), # Tokio
+  (-33.868820, 151.209290), # Sídney
+  (48.856613, 2.352222), # París
+  (34.052235, -118.243683), # Los Ángeles
+  (-37.813629, 144.963058) # Melbourne
+]
+
 
 def check_file_exists(bucket_name, file_key):
     try:
@@ -37,10 +50,10 @@ def create_frame_csv(items):
         
 
 def update_frame_csv(data):
-  with open(file_key, 'w') as f:
+  with open(temp_file, 'w') as f:
       f.write('tenant_id,n_frames,cur_frame\n') 
 
-  with open(file_key, 'a') as f:
+  with open(temp_file, 'a') as f:
     for row in data:
       tenant_id = row['tenant_id']
       n_frames = row['n_frames']
@@ -58,13 +71,22 @@ def simulate_stream(tenant_id, stream_metadata):
       cur_frame = stream_metadata['cur_frame']
       image_key = f'{tenant_id}/{cur_frame}.jpg'
 
-      sns.publish(
+      formatted_datetime = datetime.now().strftime('%Y-%m-%d/%H-%M-%S')
+
+      idx = random.randint(0, 6)
+
+      response = sns.publish(
           TopicArn=sns_topic_arn,
           Message=json.dumps({
             'bucket_name': bucket_name,
-            'image_key': image_key
+            'image_key': image_key,
+            'tenant_id': tenant_id,
+            'datetime': formatted_datetime,
+            'location': locations[idx]
           }),
       )
+
+      print(f'SNS: {response}')
 
       stream_metadata['cur_frame'] = (stream_metadata['cur_frame'] + 1) % stream_metadata['n_frames']
 
@@ -88,25 +110,28 @@ def lambda_handler(event, context):
     else:
       s3.download_file(bucket_name, file_key, temp_file)
 
-    csv_data = csv.DictReader(file_key)
-    data = []
-    for row in csv_data:
-      row['n_frames'] = int(row['n_frames'])
-      row['cur_frame'] = int(row['cur_frame'])
-      data.append(row)     
 
-    for tenant_id in items:
-      try:
-        for row in data:
-          if row['tenant_id'] == tenant_id:
-             stream_metadata = row
-             break
-        simulate_stream(tenant_id, stream_metadata)
-      except Exception as e:
-         print(e)
-         return {
-            'statusCode': 500,
-            'body': f'Error in stream simulation'
-         }
+    data = []
+    with open(temp_file, 'r') as f:
+      csv_data = csv.DictReader(f)
+
+      for row in csv_data:
+        row['n_frames'] = int(row['n_frames'])
+        row['cur_frame'] = int(row['cur_frame'])
+        data.append(row)     
+
+    print(f'Data = {data}')
+    try:
+      for row in data:
+        simulate_stream(row['tenant_id'], row)
+    except Exception as e:
+        print(f'Error in stream simulation: {e}')
+        return {
+          'statusCode': 500,
+          'body': f'Error in stream simulation: {e}'
+        }
 
     update_frame_csv(data)
+
+    if os.path.exists(temp_file):
+       os.remove(temp_file)
