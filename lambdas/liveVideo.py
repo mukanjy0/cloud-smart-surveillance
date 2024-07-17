@@ -9,6 +9,7 @@ dynamodb = boto3.resource('dynamodb')
 lambda_client = boto3.client('lambda')    
 
 bucket_name = os.environ['BUCKET_NAME']
+list_tenants_function=os.environ['LIST_TENANTS_FUNCTION']
 sns_topic_arn = os.environ['SNS_TOPIC_ARN']
 
 filename = 'frame.csv'
@@ -51,7 +52,7 @@ def simulate_stream(tenant_id, stream_metadata):
       raise Exception
 
 def lambda_handler(event, context):
-    invoke_response = lambda_client.invoke(FunctionName="listTenants",
+    invoke_response = lambda_client.invoke(FunctionName=list_tenants_function,
                                            InvocationType='RequestResponse',
                                            )
     response = json.loads(invoke_response['Payload'].read())

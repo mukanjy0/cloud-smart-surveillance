@@ -81,6 +81,8 @@ functions:
     environment:
       BUCKET_NAME:
         Ref: Media
+      LIST_TENANTS_FUNCTION:
+        REf: listTenants
       SNS_TOPIC_ARN:
         Ref: LiveVideoStream
     events:
