@@ -11,7 +11,9 @@ def lambda_handler(event, context):
         ProjectionExpression='tenant_id'
     )
     
-    partition_keys = [item['tenant_id'] for item in response['Items']]
+    partition_keys = set()
+    for item in response['Items']:
+        partition_keys.add(item['tenant_id'])
     
     # Handle pagination if there are more items than the scan limit
     while 'LastEvaluatedKey' in response:
@@ -19,9 +21,10 @@ def lambda_handler(event, context):
             ProjectionExpression='tenant_id',
             ExclusiveStartKey=response['LastEvaluatedKey']
         )
-        partition_keys.extend(item['tenant_id'] for item in response['Items'])
+        for item in response['Items']:
+            partition_keys.add(item['tenant_id'])
     
     return {
       'statusCode': 200,
-      'tenantIds': partition_keys
+      'tenantIds': list(partition_keys)
     }
