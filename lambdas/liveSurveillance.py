@@ -96,7 +96,8 @@ def lambda_handler(event, context):
                                     'lastname': person['lastname'],
                                     'country': person['country'],
                                     'datetime': datetime,
-                                    'location': location,
+                                    'latitude': str(lat),
+                                    'longitude': str(lon),
                                 }),
                                 MessageAttributes={
                                     'tenant_id': {
