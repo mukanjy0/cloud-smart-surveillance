@@ -39,7 +39,8 @@ def lambda_handler(event, context):
             image_key = message_data['image_key']
             tenant_id = message_data['tenant_id']
             datetime = message_data['datetime']
-            location = message_data['location']
+            lat = Decimal(str(message_data['latitude']))
+            lon = Decimal(str(message_data['longitude']))
             image_key = message_data['image_key']
 
             try:
@@ -63,9 +64,6 @@ def lambda_handler(event, context):
                     for match in search_response['FaceMatches']:
                         dni = match['Face']['ExternalImageId']
                         record_id = str(uuid.uuid1())
-                        (lat, lon) = location
-                        lat = Decimal(str(lat))
-                        lon = Decimal(str(lon))
 
                         record = {
                             'tenant_id': tenant_id,

@@ -18,13 +18,13 @@ file_key = 'frame.csv'
 temp_file = f'/tmp/{file_key}'
 
 locations = [
-  (40.712776, -74.005974), # Nueva York
-  (51.507351, -0.127758), # Londres
-  (35.689487, 139.691711), # Tokio
-  (-33.868820, 151.209290), # Sídney
-  (48.856613, 2.352222), # París
-  (34.052235, -118.243683), # Los Ángeles
-  (-37.813629, 144.963058) # Melbourne
+  [40.712776, -74.005974], # Nueva York
+  [51.507351, -0.127758], # Londres
+  [35.689487, 139.691711], # Tokio
+  [-33.868820, 151.209290], # Sídney
+  [48.856613, 2.352222], # París
+  [34.052235, -118.243683], # Los Ángeles
+  [-37.813629, 144.963058] # Melbourne
 ]
 
 
@@ -75,6 +75,7 @@ def simulate_stream(tenant_id, stream_metadata):
         formatted_datetime = datetime.now().strftime('%Y-%m-%d/%H-%M-%S')
 
         idx = random.randint(0, 6)
+        [lat, lon] = locations[idx]
 
         response = sns.publish(
             TopicArn=sns_topic_arn,
@@ -83,7 +84,8 @@ def simulate_stream(tenant_id, stream_metadata):
               'image_key': image_key,
               'tenant_id': tenant_id,
               'datetime': formatted_datetime,
-              'location': locations[idx],
+              'latitude': lat,
+              'longitude': lon,
               'image_key': image_key
             }),
         )
