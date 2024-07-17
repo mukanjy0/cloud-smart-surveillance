@@ -120,6 +120,12 @@ functions:
 
   S3Cleanup:
     handler: S3Cleanup.lambda_handler
+    events:
+      - http:
+          path: /s3/cleanup
+          method: get
+          cors: true
+          integration: lambda
 
 resources:
   Resources:
@@ -269,13 +275,3 @@ resources:
       Type: AWS::Rekognition::Collection
       Properties:
         CollectionId: PeopleCollection
-
-    # S3 clean up on delete
-    S3CleanupCustomResource:
-      Type: Custom::S3Cleanup
-      Properties:
-        ServiceToken:
-          Fn::GetAtt: [S3Cleanup, Arn]
-        BucketNames:
-          - Ref: Media
-          - Ref: FaceDataset
