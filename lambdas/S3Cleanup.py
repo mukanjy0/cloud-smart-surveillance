@@ -5,19 +5,16 @@ import cfnresponse
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
-    response_status = cfnresponse.SUCCESS
-    try:
-        if event['RequestType'] == 'Delete':
-            bucket_names = event['ResourceProperties']['BucketNames']
-            for bucket_name in bucket_names:
-                response_status = cleanup_bucket(bucket_name)
-                if response_status == cfnresponse.FAILED:
-                    break
-    except Exception as e:
-        print(f"Error: {e}")
-        response_status = cfnresponse.FAILED
-    
-    cfnresponse.send(event, context, response_status, {})
+    response = s3.list_buckets()
+    bucket_names = []
+    for bucket in response['Buckets']:
+        bucket_names.append(bucket["Name"])
+
+    for bucket_name in bucket_names:
+        response_status = cleanup_bucket(bucket_name)
+    return {
+        'statusCode': response_status
+    }
 
 def cleanup_bucket(bucket_name):
     try:
@@ -29,7 +26,7 @@ def cleanup_bucket(bucket_name):
                 response = s3.list_objects_v2(Bucket=bucket_name, ContinuationToken=response['NextContinuationToken'])
             else:
                 break
-        return cfnresponse.SUCCESS
+        return 200
     except Exception as e:
         print(f"Failed to clean up bucket: {e}")
-        return cfnresponse.FAILED
+        return 500

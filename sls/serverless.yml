@@ -123,7 +123,7 @@ functions:
     events:
       - http:
           path: /s3/cleanup
-          method: get
+          method: delete
           cors: true
           integration: lambda
 
