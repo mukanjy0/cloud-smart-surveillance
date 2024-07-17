@@ -8,6 +8,7 @@ provider:
   timeout: 30
   iam:
     role: arn:aws:iam::819959187501:role/LabRole
+  stage: ${opt:stage, 'dev'}
 
 functions:
   indexFacesForRekognitionFromS3:
@@ -81,10 +82,9 @@ functions:
     environment:
       BUCKET_NAME:
         Ref: Media
-      LIST_TENANTS_FUNCTION:
-        Ref: listTenants
       SNS_TOPIC_ARN:
         Ref: LiveVideoStream
+      LIST_TENANTS_FUNCTION: ${self:service}-${self:provider.stage}-listTenants
     events:
       - schedule: rate(1 minute)
 

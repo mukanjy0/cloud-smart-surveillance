@@ -12,26 +12,46 @@ bucket_name = os.environ['BUCKET_NAME']
 list_tenants_function=os.environ['LIST_TENANTS_FUNCTION']
 sns_topic_arn = os.environ['SNS_TOPIC_ARN']
 
-filename = 'frame.csv'
+file_key = 'frame.csv'
+temp_file = f'/tmp/{file_key}'
+
+def check_file_exists(bucket_name, file_key):
+    try:
+        s3.head_object(Bucket=bucket_name, Key=file_key)
+        return True
+    except Exception as e:
+        return False
 
 def create_frame_csv(items):
-  with open(filename, 'w') as f:
+  with open(temp_file, 'w') as f:
       f.write('tenant_id,n_frames,cur_frame\n') 
 
   for tenant_id in items:
-    with open(filename, 'a') as f:
+    with open(temp_file, 'a') as f:
         f.write(f'{tenant_id},240,0\n')
+  try:
+    response = s3.upload_file(temp_file, bucket_name, file_key)
+    print(response)
+  except Exception as e:
+    print(f'Error uploading file: {e}')
+        
 
 def update_frame_csv(data):
-  with open(filename, 'w') as f:
+  with open(file_key, 'w') as f:
       f.write('tenant_id,n_frames,cur_frame\n') 
 
-  with open(filename, 'a') as f:
+  with open(file_key, 'a') as f:
     for row in data:
       tenant_id = row['tenant_id']
       n_frames = row['n_frames']
       cur_frame = row['cur_frame']
       f.write(f'{tenant_id},{n_frames},{cur_frame}\n')
+
+  try:
+    response = s3.upload_file(temp_file, bucket_name, file_key)
+    print(response)
+  except Exception as e:
+    print(f'Error uploading file: {e}')
 
 def simulate_stream(tenant_id, stream_metadata):
     try:
@@ -63,10 +83,12 @@ def lambda_handler(event, context):
 
     items = response['tenantIds']
 
-    if not os.path.exists(filename):
+    if not check_file_exists(bucket_name, file_key):
       create_frame_csv(items)
+    else:
+      s3.download_file(bucket_name, file_key, temp_file)
 
-    csv_data = csv.DictReader(filename)
+    csv_data = csv.DictReader(file_key)
     data = []
     for row in csv_data:
       row['n_frames'] = int(row['n_frames'])
