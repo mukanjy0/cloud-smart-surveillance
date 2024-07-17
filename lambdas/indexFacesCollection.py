@@ -15,6 +15,8 @@ def lambda_handler(event, context):
     faces = dict()
     for image in response['Contents']:
         image_key = image['Key']
+        if image_key == prefix:
+            continue
 
         try:
             index_response = rekognition.index_faces(
