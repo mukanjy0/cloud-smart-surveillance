@@ -81,12 +81,12 @@ def lambda_handler(event, context):
                         print(f'Insert on RecordedPeople: {response}')
 
                         result = people_table.query(
-                            FilterExpression=Attr('offender').eq(True) & Attr('dni').eq(dni),
-                            KeyConditionExpression=Key('tenant_id').eq(tenant_id)
+                            KeyConditionExpression=Key('dni').eq(dni)
                         )
                         print(f'Validate if offender: {result}')
+                        person =  result['Items'][0]
 
-                        if result['Items']:
+                        if person.get('offender') == True:
                             person = result['Items'][0]
 
                             sns.publish(

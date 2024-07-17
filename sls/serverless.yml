@@ -222,7 +222,7 @@ resources:
         Protocol: "email"
         Endpoint: "ian.gonzalez@utec.edu.pe"
         FilterPolicy:
-          tenant_id":
+          tenant_id:
             - "UTEC"
 
     OffenderAlertEmailSubscriptionRIMAC:
@@ -233,7 +233,7 @@ resources:
         Protocol: "email"
         Endpoint: "bianca.aguinaga@utec.edu.pe"
         FilterPolicy:
-          tenant_id":
+          tenant_id:
             - "RIMAC"
 
     # SQS
@@ -272,42 +272,6 @@ resources:
                 ArnEquals:
                   AWS:SourceArn:
                     - Ref: LiveVideoStream
-
-    OffenderAlertQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: "OffenderAlertQueue"
-        RedrivePolicy:
-          deadLetterTargetArn:
-            Fn::GetAtt:
-              - OffenderAlertDLQ
-              - Arn
-          maxReceiveCount: 5
-
-    OffenderAlertDLQ:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: "OffenderAlertDLQ"
-
-    OffenderAlertQueuePolicy:
-      Type: AWS::SQS::QueuePolicy
-      Properties:
-        Queues:
-          - Ref: OffenderAlertQueue
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Principal: "*"
-              Action: "SQS:SendMessage"
-              Resource:
-                - Fn::GetAtt:
-                    - OffenderAlertQueue
-                    - Arn
-              Condition:
-                ArnEquals:
-                  AWS:SourceArn:
-                    - Ref: OffenderAlert
 
     # Rekognition Collection
     PeopleCollection:
